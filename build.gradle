@@ -15,8 +15,23 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.projectlombok:lombok:1.18.18'
+
+	// 2021.05.11 김민형 - annotationProcessor 없으니 lombok으로 된 Entity 테시트 에러난다.
+	annotationProcessor('org.projectlombok:lombok')
+
+	// 2021.05.11 김민형 - testAnnotationProcessor 없어도 테스트는 진행되니 우선 주석 처리 해놓자.
+	//testAnnotationProcessor('org.projectlombok:lombok')
+
 	runtimeOnly 'com.h2database:h2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude module: 'junit-platform-commons'
+	}
+	// TODO 2021.05.11 김민형 - junit 4와 5버전이 각각 달라서 좀 더 이해가 필요하다. 학습 후 디펜더시 정리하여 최적화 필요.
+	testImplementation('org.junit.jupiter:junit-jupiter-api')
+	testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
+	testRuntimeOnly('org.junit.platform:junit-platform-engine:')
+	testRuntimeOnly('org.junit.platform:junit-platform-commons')
 }
 
 test {
