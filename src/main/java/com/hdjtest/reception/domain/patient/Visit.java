@@ -3,6 +3,7 @@ package com.hdjtest.reception.domain.patient;
 import com.hdjtest.reception.domain.base.Hospital;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 // 2021.05.11 김민형 - 우선 @Getter 없이 수동으로 Getter 생성해놨다. 사용하게 되면 모든 Getter 들 안녕...
 @NoArgsConstructor
+@ToString
 public class Visit {
     // TODO 2021.05.08 김민형 - Entity 변수명 영어로 변경 필요함.
 
@@ -69,5 +71,13 @@ public class Visit {
 
     public String get진료과목코드() {
         return this.진료과목코드;
+    }
+
+    public void update(Hospital 병원, Patient 환자, LocalDateTime 접수일시, String 방문상태코드, String 진료과목코드) {
+        this.병원 = 병원;
+        this.환자 = 환자;
+        this.접수일시 = 접수일시;
+        this.방문상태코드 = 방문상태코드;
+        this.진료과목코드 = 진료과목코드;
     }
 }

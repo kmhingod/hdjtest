@@ -2,6 +2,7 @@ package com.hdjtest.reception.domain.base;
 
 import com.hdjtest.reception.domain.patient.Patient;
 import com.hdjtest.reception.domain.patient.Visit;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -32,7 +33,7 @@ public class Hospital {
     private String 병원장명;
 
     // 2021.05.08 김민형 - 병원 별 환자 목록 조회용
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "병원")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "병원", fetch = FetchType.LAZY)
     private List<Patient> patientList;
 
     // 2021.05.08 김민형 - 병원 별 환자 방문 내역 조회용
@@ -42,7 +43,7 @@ public class Hospital {
     // 2021.05.11 김민형 - NoArgsConstructor를 사용하자!
     //public Hospital() {}
 
-    // 2021.05.11 김민형 - 추후 필요 시 @Builder 사용하자.
+    @Builder
     public Hospital(String 병원명, String 요양기관번호, String 병원장명) {
         // 2021.05.11 김민형 - Repository 없이 진행하다가 남은 잔재물...
         //this.setNew병원ID();
