@@ -2,6 +2,7 @@ package com.hdjtest.reception.domain.patient;
 
 
 import com.hdjtest.reception.domain.base.Hospital;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,6 +10,9 @@ import java.util.List;
 // TODO 2021.05.08 김민형 - lombok으로 생성자 및 Getter 등 자동화 고려 필요
 
 @Entity
+// 2021.05.11 김민형 - 우선 @Getter 없이 수동으로 Getter 생성해놨다. 사용하게 되면 모든 Getter 들 안녕...
+@NoArgsConstructor
+@ToString
 public class Patient {
     // TODO 2021.05.08 김민형 - Entity 변수명 영어로 변경 필요함.
 
@@ -16,7 +20,7 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long 환자ID;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     // 2021.05.08 김민형 - 병원(Hospital) 테이블에 외래키로 연결되어야 한다.
     //@Column(length = 45, nullable = false)
     @JoinColumn(name = "병원ID")
@@ -55,8 +59,22 @@ public class Patient {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "환자")
     private List<Visit> visitList;
 
-    public Patient() {}
+    // 2021.05.11 김민형 - NoArgsConstructor를 사용하자!
+    // public Patient() {}
 
+
+    @Builder
+    public Patient(Hospital 병원, String 환자명, String 환자등록번호, String 성별코드, String 생년월일, String 휴대전화번호, String 이메일) {
+        this.병원 = 병원;
+        this.환자명 = 환자명;
+        this.환자등록번호 = 환자등록번호;
+        this.성별코드 = 성별코드;
+        this.생년월일 = 생년월일;
+        this.휴대전화번호 = 휴대전화번호;
+        this.이메일 = 이메일;
+    }
+
+    @Builder
     public Patient(Hospital 병원, String 환자명, String 환자등록번호, String 성별코드) {
         this.병원 = 병원;
         this.환자명 = 환자명;
@@ -96,7 +114,22 @@ public class Patient {
         return this.이메일;
     }
 
+    public void set환자ID(Long 환자ID) {
+        this.환자ID = 환자ID;
+    }
+
     public List<Visit> getVisitList() {
         return this.visitList;
+    }
+
+
+    public void update(Hospital 병원, String 환자명, String 환자등록번호, String 성별코드, String 생년월일, String 휴대전화번호, String 이메일) {
+        this.병원 = 병원;
+        this.환자명 = 환자명;
+        this.환자등록번호 = 환자등록번호;
+        this.성별코드 = 성별코드;
+        this.생년월일 = 생년월일;
+        this.휴대전화번호 = 휴대전화번호;
+        this.이메일 = 이메일;
     }
 }
