@@ -1,16 +1,20 @@
 package com.hdjtest.reception.domain.patient;
 
+import com.hdjtest.reception.config.TestConfig;
 import com.hdjtest.reception.domain.base.Hospital;
 
 import com.hdjtest.reception.domain.base.HospitalRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,8 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 //@DataJpaTest
+@Import(TestConfig.class)
 @SpringBootTest
 public class PatientRepositoryTest {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private HospitalRepository hospitalRepository;
@@ -101,6 +109,15 @@ public class PatientRepositoryTest {
         // 2021.05.11 김민형 - 실패. 분명 성별은 남자였다. 군제대하고 온 복학생이었다.
         //assertThat(patientList.get(3).get성별코드()).isEqualTo("M");
         assertThat(patientList.get(3).get성별코드()).isEqualTo("F");
+    }
 
+    @Test
+    @Transactional
+    void findByName_Test() {
+        Patient patient = patientRepository.findByName("김민형")
+                .orElseThrow(() -> new IllegalArgumentException("Patient 가 존재하지 않습니다. 환자명 : " + "김민형"));
+
+        System.out.println(">>>>> Patient Name : " + patient.get환자명());
+        assertThat(patient.get환자명()).isEqualTo("김민형");
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,6 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 //@Sql(scripts = {"classpath:data/data.sql"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PatientControllerTest {
+
+    // 2021.05.13 김민형 - 하다보니 Service 단에 대한 단위 테스트인데 Controller 로 이름을 붙였다.
+    //                    다음 플젝에는 MockMvc 를 사용하여 Controller 단 테스트를 만들어야겠다.
+    //                    스프링부트 프로젝트의 경우 현업에서 테스트를 어느 단까지 하는지를 잘 모르겠다.
+
 
     @LocalServerPort
     private int port;
@@ -48,14 +54,6 @@ public class PatientControllerTest {
         assertThat(patientService.selectById(1L, true).getPatientName()).isEqualTo("김민형");
     }
 
-//    void selectPatientWithVisits_Test() throws Exception {
-//
-//        String url = "http://localhost:" + port + "/api/v1/patients/1/visit-all";
-//
-//        ResponseEntity<Long> respEntity = restTemplate.getForEntity(url, patientDto, Long.class);
-//        //assertThat("aaa").isEqualTo("aaa");
-//        assertThat(patientService.selectById(1L).getPatientName()).isEqualTo("김민형");
-//    }
 
     @Test
     void insertPatient_Test() throws Exception {

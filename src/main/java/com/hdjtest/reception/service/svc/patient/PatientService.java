@@ -27,6 +27,7 @@ public class PatientService {
 
     private final VisitRepository visitRepository;
 
+
     @Transactional(readOnly = true)
     public PatientDto selectById(Long patientId, Boolean includeVisitList) {
         Patient patient = patientRepository.findById(patientId)
@@ -46,19 +47,23 @@ public class PatientService {
     @Transactional(readOnly = true)
     public List<PatientDto> selectDtoAll(String searchType, String searchValue, Boolean includeVisitList) {
         List<PatientDto> patientDtoList = new ArrayList<>();
-        List<Patient> patientList = new ArrayList<Patient>();
 
-        System.out.println(">>>> request params : " +  searchType + ", " +  searchValue);
-        if (searchType.equals("patient_name")) {
-            patientList = patientRepository.selectPatientListByName(searchValue);
-        } else if (searchType.equals("patient_reg_num")) {
-            patientList = patientRepository.selectPatientListByPatientRegNum(searchValue);
-        } else if (searchType.equals("patient_birth")) {
-            patientList = patientRepository.selectPatientListByBirth(searchValue);
-        } else {
-            // 2021.05.12 김민형 - 검색 값이 없는 경우는 반환할게 없다.
-            //patientList = patientRepository.findAll();
-        }
+        // 2021.05.13 김민형 - querydsl 동적검색 사용하는 방식으로 변경하고 리포지토리 단으로 이동
+//        List<Patient> patientList = new ArrayList<Patient>();
+//
+//        System.out.println(">>>> request params : " +  searchType + ", " +  searchValue);
+//        if (searchType.equals("patient_name")) {
+//            patientList = patientRepository.selectPatientListByName(searchValue);
+//        } else if (searchType.equals("patient_reg_num")) {
+//            patientList = patientRepository.selectPatientListByPatientRegNum(searchValue);
+//        } else if (searchType.equals("patient_birth")) {
+//            patientList = patientRepository.selectPatientListByBirth(searchValue);
+//        } else {
+//            // 2021.05.12 김민형 - 검색 값이 없는 경우는 반환할게 없다.
+//            //patientList = patientRepository.findAll();
+//        }
+
+        List<Patient> patientList = patientRepository.selectWithOptions(searchType, searchValue);
 
         System.out.println(">>>> patientList Count : " +  patientList.size());
         // 2021.05.12 김민형 - Mapper 사용을 해야하는데...나중에 리펙토링 필요하다.

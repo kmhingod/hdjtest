@@ -1,11 +1,16 @@
 package com.hdjtest.reception.domain.patient;
 
+import com.hdjtest.reception.config.QuerydslConfig;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PatientRepository extends JpaRepository<Patient, Long> {
+@Import(QuerydslConfig.class)
+public interface PatientRepository extends JpaRepository<Patient, Long>, PatientRepositoryCustom {
 
     @Query("SELECT MAX(p.환자등록번호) FROM Patient p WHERE p.병원.병원ID = ?1")
     String getMaxPatientRegNum(Long 병원ID);
@@ -18,4 +23,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query("SELECT p FROM Patient p WHERE p.생년월일 = ?1")
     List<Patient> selectPatientListByBirth(String 생년월일);
+
+    List<Patient> selectWithOptions(String optionType, String optionValue);
+
+    Optional<Patient> findByName(String 환자명);
 }
