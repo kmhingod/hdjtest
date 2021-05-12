@@ -2,7 +2,11 @@ package com.hdjtest.reception.service.dto.patient;
 
 import com.hdjtest.reception.domain.base.Hospital;
 import com.hdjtest.reception.domain.patient.Patient;
+import com.hdjtest.reception.domain.patient.Visit;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -20,6 +24,8 @@ public class PatientDto {
     private String mobileNum;
     private String eMail;
 
+    private List<VisitDto> visitList;
+
     public PatientDto(Patient patient){
         this.patientId = patient.get환자ID();
         this.hospId = patient.get병원ID();
@@ -29,6 +35,11 @@ public class PatientDto {
         this.birthDay = patient.get생년월일();
         this.mobileNum = patient.get휴대전화번호();
         this.eMail = patient.get이메일();
+
+        // 2021.05.12 김민형 - 방문목록은 요청시에만 생성한다.
+//        if (patient.getVisitList() != null) {
+//            this.visitList = ConvertVisitEntityListToDtoList(patient.getVisitList());
+//        }
     }
 
     public Patient createEntity(PatientDto patientDto) throws Exception {
@@ -52,4 +63,19 @@ public class PatientDto {
                 .build();
     }
 
+    public List<VisitDto> ConvertVisitEntityListToDtoList(List<Visit> visitList) {
+
+        List<VisitDto> visitDtoList = new ArrayList<>();
+
+        System.out.println(">>>>> visit size :" + visitList.size());
+        // 2021.05.12 김민형 - Mapper를 사용해야할듯한데...
+        for(Visit visit : visitList) {
+            VisitDto visitDto = new VisitDto(visit);
+
+            System.out.println(">>>>> visit id :" + visitDto.getVisitId());
+            visitDtoList.add(visitDto);
+        }
+
+        return visitDtoList;
+    }
 }

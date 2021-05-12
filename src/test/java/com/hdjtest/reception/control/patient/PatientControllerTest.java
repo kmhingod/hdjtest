@@ -4,6 +4,7 @@ import com.hdjtest.reception.domain.patient.Patient;
 import com.hdjtest.reception.domain.patient.PatientRepository;
 import com.hdjtest.reception.service.dto.patient.PatientDto;
 import com.hdjtest.reception.service.svc.patient.PatientService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,11 +41,21 @@ public class PatientControllerTest {
     @Autowired
     PatientRepository patientRepository;
 
+
     @Test
     void selectPatient_Test() throws Exception {
         //assertThat("aaa").isEqualTo("aaa");
-        assertThat(patientService.selectById(1L).getPatientName()).isEqualTo("김민형");
+        assertThat(patientService.selectById(1L, true).getPatientName()).isEqualTo("김민형");
     }
+
+//    void selectPatientWithVisits_Test() throws Exception {
+//
+//        String url = "http://localhost:" + port + "/api/v1/patients/1/visit-all";
+//
+//        ResponseEntity<Long> respEntity = restTemplate.getForEntity(url, patientDto, Long.class);
+//        //assertThat("aaa").isEqualTo("aaa");
+//        assertThat(patientService.selectById(1L).getPatientName()).isEqualTo("김민형");
+//    }
 
     @Test
     void insertPatient_Test() throws Exception {
@@ -69,9 +81,76 @@ public class PatientControllerTest {
 
         System.out.println(">>>>> Body : " + respEntity.getBody());
 
-        List<Patient> patientAll = patientService.selectAll();
-        assertThat(patientAll.get(Integer.parseInt(respEntity.getBody().toString()) - 1).get환자명()).isEqualTo(patientDto.getPatientName());
-        assertThat(patientAll.get(Integer.parseInt(respEntity.getBody().toString()) - 1).get성별코드()).isEqualTo(patientDto.getSexCode());
+        Patient patient = patientService.selectPatientEntity(respEntity.getBody());
+        assertThat(patient.get환자명()).isEqualTo(patientDto.getPatientName());
+        assertThat(patient.get성별코드()).isEqualTo(patientDto.getSexCode());
+
+    }
+
+    @Test
+    void insertPatientWithDifferentRegNum_Test() throws Exception {
+
+        // 2021.05.13 김민형 - 프론트 단에서 이미 존재하는 환자등록번호로 들어온 경우 처리
+        PatientDto patientDto = new PatientDto();
+        patientDto.setHospId(1L);
+        patientDto.setPatientName("남학생");
+        // 이미 존재하는 등록번호
+        patientDto.setPatientRegNum("2021000000001");
+        patientDto.setSexCode("M");
+        patientDto.setBirthDay("19800726");
+        patientDto.setMobileNum("010-0123-4567");
+        patientDto.setEMail("bbb@ccc.net");
+
+        System.out.println(">>>>> patientDto : " + patientDto);
+
+        String url = "http://localhost:" + port + "/api/v1/patients";
+
+        ResponseEntity<Long> respEntity = restTemplate.postForEntity(url, patientDto, Long.class);
+
+        assertThat(respEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respEntity.getBody()).isGreaterThan(0L);
+
+        System.out.println(">>>>> Body : " + respEntity.getBody());
+        Long newPatientId = Long.parseLong(respEntity.getBody().toString());
+
+        Patient newPatient = patientService.selectPatientEntity(newPatientId);
+        System.out.println(">>>>> Patient Reg Num Original: " + patientDto.getPatientRegNum());
+        System.out.println(">>>>> Patient Reg Num After Save: " + newPatient.get환자등록번호());
+        // 2021.05.12 김민형 - 환자등록번호 달라야한다.
+        assertThat(newPatient.get환자등록번호()).isNotEqualTo(patientDto.getPatientRegNum());
+    }
+
+    @Test
+    void insertPatientWithNewHospital_Test() throws Exception {
+
+        // 2021.05.13 김민형 - 환자를 처음 등록하는 병원의 경우
+        PatientDto patientDto = new PatientDto();
+        patientDto.setHospId(5L);
+        patientDto.setPatientName("남학생");
+        // 환자등록번호가 null 이든 어떤 값이든 상관이 없다. 신규 환자등록번호 이므로 YYYY + 000000001 이 된다.
+        patientDto.setPatientRegNum("2021000000021");
+        patientDto.setSexCode("M");
+        patientDto.setBirthDay("19800726");
+        patientDto.setMobileNum("010-0123-4567");
+        patientDto.setEMail("bbb@ccc.net");
+
+        System.out.println(">>>>> patientDto : " + patientDto);
+
+        String url = "http://localhost:" + port + "/api/v1/patients";
+
+        ResponseEntity<Long> respEntity = restTemplate.postForEntity(url, patientDto, Long.class);
+
+        assertThat(respEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respEntity.getBody()).isGreaterThan(0L);
+
+        System.out.println(">>>>> Body : " + respEntity.getBody());
+        Long newPatientId = Long.parseLong(respEntity.getBody().toString());
+
+        Patient newPatient = patientService.selectPatientEntity(newPatientId);
+        System.out.println(">>>>> Patient Reg Num Original: " + patientDto.getPatientRegNum());
+        System.out.println(">>>>> Patient Reg Num After Save: " + newPatient.get환자등록번호());
+        // 2021.05.12 김민형 - 환자등록번호는 항상 YYYY + 000000001 이 된다.
+        assertThat(newPatient.get환자등록번호()).isEqualTo(LocalDate.now().getYear() +"000000001");
     }
 
     @Test
@@ -95,7 +174,8 @@ public class PatientControllerTest {
         //                         HospiId 값을 지정 안한 경우 null 에러가 발생하는데
         //                         수십 수백개의 컬럼이 있는 경우 처리가 난감함. 처리 방법 확인 필요.
         PatientDto patientDtoUpd = new PatientDto();
-        patientDtoUpd.setHospId(patientDtoNew.getHospId());
+        //patientDtoUpd.setHospId(patientDtoNew.getHospId());
+        patientDtoUpd.setHospId(2L);
         patientDtoUpd.setPatientName("여학생");
         patientDtoUpd.setPatientRegNum("111111111");
         patientDtoUpd.setSexCode("F");
@@ -115,9 +195,12 @@ public class PatientControllerTest {
 
         System.out.println(">>>>> Body : " + respEntity.getBody());
 
-        List<Patient> patientAll = patientService.selectAll();
-        assertThat(patientAll.get(Integer.parseInt(respEntity.getBody().toString()) - 1).get환자명()).isEqualTo(patientDtoUpd.getPatientName());
-        assertThat(patientAll.get(Integer.parseInt(respEntity.getBody().toString()) - 1).get성별코드()).isEqualTo(patientDtoUpd.getSexCode());
+        Patient patient = patientService.selectPatientEntity(newPatientId);
+        assertThat(patient.get환자명()).isEqualTo(patientDtoUpd.getPatientName());
+        assertThat(patient.get성별코드()).isEqualTo(patientDtoUpd.getSexCode());
+
+        PatientDto updPatientDto = patientService.selectPatientDto(newPatientId);
+        System.out.println(">>>>> Updated patient information : " + updPatientDto);
     }
 
     @Test
