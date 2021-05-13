@@ -1,9 +1,12 @@
 package com.hdjtest.reception.control.patient;
 
 import com.hdjtest.reception.service.dto.patient.PatientDto;
+import com.hdjtest.reception.service.dto.patient.PatientRequestDto;
 import com.hdjtest.reception.service.svc.base.HospitalService;
 import com.hdjtest.reception.service.svc.patient.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +37,17 @@ public class PatientController {
 
         // 2021.05.12 김민형 - 방문목록 포함하는 파라미터 추가
         return patientService.selectDtoAll(searchType, searchValue, false);
+    }
+
+    // 페이징 적용한 api
+    @GetMapping("/api/v1/patients/paging")
+    public PatientRequestDto selectPatientAllPaging(@RequestParam(value = "searchType", defaultValue = "") String searchType,
+                                                          @RequestParam(value = "searchValue", defaultValue = "") String searchValue,
+                                                          @RequestParam(value = "page", defaultValue = "1") String page,
+                                                          @RequestParam(value = "pageSize", defaultValue = "10") String pageSize) {
+
+        // 2021.05.12 김민형 - 방문목록 포함하는 파라미터 추가
+        return patientService.selectDtoAllPaging(searchType, searchValue, false, page, pageSize);
     }
 
     // 2021.05.12 김민형 - 실제로 사용될일은 없다고 보겠지만 그냥 테스트 삼아 냅두자.

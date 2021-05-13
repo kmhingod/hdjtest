@@ -1,10 +1,12 @@
 package com.hdjtest.reception.service.dto.patient;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hdjtest.reception.domain.base.Hospital;
 import com.hdjtest.reception.domain.patient.Patient;
 import com.hdjtest.reception.domain.patient.Visit;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,9 @@ public class PatientDto {
     private String mobileNum;
     private String eMail;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    private LocalDateTime lastVisitDate;
+
     private List<VisitDto> visitList;
 
     public PatientDto(Patient patient){
@@ -35,6 +40,7 @@ public class PatientDto {
         this.birthDay = patient.get생년월일();
         this.mobileNum = patient.get휴대전화번호();
         this.eMail = patient.get이메일();
+        this.lastVisitDate = patient.getLastVisitDate();
 
         // 2021.05.12 김민형 - 방문목록은 요청시에만 생성한다.
 //        if (patient.getVisitList() != null) {
