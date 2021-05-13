@@ -2,6 +2,8 @@ package com.hdjtest.reception.domain.patient;
 
 import com.hdjtest.reception.config.QuerydslConfig;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -25,6 +27,9 @@ public interface PatientRepository extends JpaRepository<Patient, Long>, Patient
     List<Patient> selectPatientListByBirth(String 생년월일);
 
     List<Patient> selectWithOptions(String optionType, String optionValue);
+
+    // 페이징 기능 추가한 환자 검색 함수
+    Page<Patient> selectWithOptionsPaging(String optionType, String optionValue, Pageable pageable);
 
     Optional<Patient> findByName(String 환자명);
 }

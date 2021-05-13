@@ -2,9 +2,12 @@ package com.hdjtest.reception.domain.patient;
 
 
 import com.hdjtest.reception.domain.base.Hospital;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
+import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 // TODO 2021.05.08 김민형 - lombok으로 생성자 및 Getter 등 자동화 고려 필요
@@ -59,6 +62,8 @@ public class Patient {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "환자")
     private List<Visit> visitList;
 
+    private LocalDateTime lastVisitDate;
+
     // 2021.05.11 김민형 - NoArgsConstructor를 사용하자!
     // public Patient() {}
 
@@ -72,6 +77,18 @@ public class Patient {
         this.생년월일 = 생년월일;
         this.휴대전화번호 = 휴대전화번호;
         this.이메일 = 이메일;
+    }
+
+    @Builder
+    public Patient(Hospital 병원, String 환자명, String 환자등록번호, String 성별코드, String 생년월일, String 휴대전화번호, String 이메일, LocalDateTime lastVisitDate) {
+        this.병원 = 병원;
+        this.환자명 = 환자명;
+        this.환자등록번호 = 환자등록번호;
+        this.성별코드 = 성별코드;
+        this.생년월일 = 생년월일;
+        this.휴대전화번호 = 휴대전화번호;
+        this.이메일 = 이메일;
+        this.lastVisitDate = lastVisitDate;
     }
 
     @Builder
@@ -120,6 +137,10 @@ public class Patient {
 
     public List<Visit> getVisitList() {
         return this.visitList;
+    }
+
+    public LocalDateTime getLastVisitDate() {
+        return this.lastVisitDate;
     }
 
 

@@ -6,7 +6,12 @@ import com.hdjtest.reception.domain.patient.Patient;
 import com.hdjtest.reception.domain.patient.PatientRepository;
 import com.hdjtest.reception.domain.patient.VisitRepository;
 import com.hdjtest.reception.service.dto.patient.PatientDto;
+import com.hdjtest.reception.service.dto.patient.PatientRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -79,6 +84,50 @@ public class PatientService {
 
         return patientDtoList;
     }
+
+    @Transactional(readOnly = true)
+    public PatientRequestDto selectDtoAllPaging(String searchType, String searchValue, Boolean includeVisitList, String page, String pageSize) {
+
+        // 최종으로 던져주는 값은 PatientDTo를 리스트로 포함하고 화면 상단에 사용할 변수들을 추가할 수 있다.
+        PatientRequestDto patientRequestDtoList;
+
+        int pageOffSet = Integer.parseInt(page) - 1;
+        int pageSizeInt = Integer.parseInt(pageSize);
+
+        // page offset 조정
+        if (pageOffSet < 1) {
+            pageOffSet = 0;
+        }
+
+        // TODO 2021.05.13 김민형 - 선택 컬럼에 따라 정렬 하는 방식 추가 필요
+        Pageable pageable = PageRequest.of(pageOffSet, pageSizeInt);
+
+        // TODO 2021.05.13 김민형 - 최종 내원일을 가져와야 하는데 Projections 사용하면 컬럼들이 null 값으로 넘어온다.
+        //                         DTO를 다시 구성하여 쿼리 테스트가 필요하다. 우선 시간이 없으니 최종 내원일은 추후 작업한다.
+        Page<Patient> patientList = patientRepository.selectWithOptionsPaging(searchType, searchValue, pageable);
+
+        List<PatientDto> patientDtoList = new ArrayList<>();
+
+        // 2021.05.12 김민형 - Mapper 사용을 해야하는데...나중에 리펙토링 필요하다.
+        for(Patient patient : patientList) {
+            PatientDto patientDto = new PatientDto(patient);
+            System.out.println("2");
+            patientDtoList.add(patientDto);
+            System.out.println("3");
+        }
+
+        System.out.println("3");
+        // Paging 관련된 정보 적재
+        patientRequestDtoList = new PatientRequestDto(patientDtoList);
+        patientRequestDtoList.setPage(pageable.getOffset() + 1);
+        patientRequestDtoList.setPageSize(pageable.getPageSize());
+        patientRequestDtoList.setTotalItemCount(patientList.getTotalElements());
+        patientRequestDtoList.setPageCount(patientList.getTotalPages());
+
+        return patientRequestDtoList;
+    }
+
+
 
     // 2021.05.12 김민형 - 방문목록 포함하는 파라미터 추가하여 함수 하나로 사용
 //    @Transactional(readOnly = true)
