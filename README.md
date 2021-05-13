@@ -35,7 +35,7 @@ node express 그리고 .Net Core 로 api 작업은 해봤지만 수월한 개발
 ## [TO DO]
 - 전체 구조를 변경
 - querydsl 관련하여 학습 후 query 변경 및 성능 검사
-= restdocs 추가
+- restdocs 추가
 
 
 
